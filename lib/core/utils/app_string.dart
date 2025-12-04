@@ -1,5 +1,5 @@
 class AppString {
-  static const String welcomeMessage = "Welcome";
+  static const String welcomeTitle = "Welcome";
   static const String letsGetStarted = "Lets get started";
   static const String existingCustomer = "Existing  customer / Get started";
   static const String newCustomer = "New customer?";

@@ -17,19 +17,22 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: bgColor,
-        foregroundColor: textColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(color: AppColors.blueColor, width: 2),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: textColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(color: AppColors.blueColor, width: 2),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        child: Text(label),
       ),
-      child: Text(label),
     );
   }
 }
