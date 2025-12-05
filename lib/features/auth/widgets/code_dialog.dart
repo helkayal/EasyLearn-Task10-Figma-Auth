@@ -39,10 +39,21 @@ class CodeDialog extends StatelessWidget {
                   Container(
                     width: 50,
                     height: 80,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: AppColors.textboxBgColor,
                       border: Border.all(color: AppColors.textboxBorderColor),
                       borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      textAlign: TextAlign.center,
+                      maxLength: 1,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        counterText: '',
+                        border: InputBorder.none,
+                      ),
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
               ],
