@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:task10_figma_auth/core/utils/app_string.dart';
 import 'package:task10_figma_auth/features/auth/presentation/login_screen.dart';
 import 'package:task10_figma_auth/features/auth/presentation/signup_screen.dart';
-import 'package:task10_figma_auth/widgets/custom_nutton.dart';
+import 'package:task10_figma_auth/widgets/custom_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

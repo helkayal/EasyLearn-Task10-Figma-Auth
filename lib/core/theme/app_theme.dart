@@ -4,7 +4,17 @@ import 'package:task10_figma_auth/core/theme/app_colors.dart';
 abstract final class AppTheme {
   static ThemeData appTheme = ThemeData(
     scaffoldBackgroundColor: AppColors.whiteColor,
-
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.whiteColor,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: TextStyle(
+        color: AppColors.greyColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+      leadingWidth: 30,
+    ),
     textTheme: const TextTheme(
       titleLarge: TextStyle(
         color: AppColors.blueColor,
