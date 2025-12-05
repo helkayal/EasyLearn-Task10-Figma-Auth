@@ -32,6 +32,7 @@ class _CustomTextboxState extends State<CustomTextbox> {
   String? errorMessage;
 
   double passwordStrength = 0;
+  String passwordStrengthText = '';
 
   @override
   void initState() {
@@ -52,6 +53,33 @@ class _CustomTextboxState extends State<CustomTextbox> {
   void dispose() {
     focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool hasValue = widget.controller?.text.isNotEmpty ?? false;
+    bool isValid = hasValue && errorMessage == null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.labelText ?? '',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: widget.width ?? double.infinity,
+          height: widget.height ?? 50,
+          child: buildTextFormField(context, hasValue, isValid),
+        ),
+
+        if (widget.isPassword && hasValue) buildPasswordStrengthBar(),
+
+        if (errorMessage != null && errorMessage!.isNotEmpty)
+          buildErrorMessage(context),
+      ],
+    );
   }
 
   void validateField() {
@@ -93,39 +121,6 @@ class _CustomTextboxState extends State<CustomTextbox> {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(color: color, width: width),
-    );
-  }
-
-  Color strengthColor() {
-    if (passwordStrength <= 0.4) return AppColors.textboxErrorColor;
-    if (passwordStrength <= 0.75) return AppColors.yellowColor;
-    return AppColors.textboxOkColor;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    bool hasValue = widget.controller?.text.isNotEmpty ?? false;
-    bool isValid = hasValue && errorMessage == null;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          widget.labelText ?? '',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: widget.width ?? double.infinity,
-          height: widget.height ?? 50,
-          child: buildTextFormField(context, hasValue, isValid),
-        ),
-
-        if (widget.isPassword && hasValue) buildPasswordStrengthBar(),
-
-        if (errorMessage != null && errorMessage!.isNotEmpty)
-          buildErrorMessage(context),
-      ],
     );
   }
 
@@ -183,14 +178,51 @@ class _CustomTextboxState extends State<CustomTextbox> {
     );
   }
 
+  Color strengthColor() {
+    if (passwordStrength <= 0.4) return AppColors.textboxErrorColor;
+    if (passwordStrength <= 0.75) return AppColors.yellowColor;
+    return AppColors.textboxOkColor;
+  }
+
+  Text strengthText() {
+    if (passwordStrength <= 0.4) {
+      return Text(
+        "Password is Weak",
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.copyWith(color: AppColors.textboxErrorColor),
+      );
+    }
+    if (passwordStrength <= 0.75) {
+      return Text(
+        "Password is Medium",
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.copyWith(color: AppColors.yellowColor),
+      );
+    }
+    return Text(
+      "Password is Strong",
+      style: Theme.of(
+        context,
+      ).textTheme.bodyLarge!.copyWith(color: AppColors.textboxOkColor),
+    );
+  }
+
   Padding buildPasswordStrengthBar() {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
-      child: LinearProgressIndicator(
-        value: passwordStrength,
-        backgroundColor: Colors.grey[300],
-        color: strengthColor(),
-        minHeight: 5,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LinearProgressIndicator(
+            value: passwordStrength,
+            backgroundColor: Colors.grey[300],
+            color: strengthColor(),
+            minHeight: 3,
+          ),
+          strengthText(),
+        ],
       ),
     );
   }
