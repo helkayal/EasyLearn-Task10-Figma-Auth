@@ -29,7 +29,7 @@ class CustomButton extends StatelessWidget {
             side: BorderSide(color: AppColors.blueColor, width: 2),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
         child: Text(label),
       ),

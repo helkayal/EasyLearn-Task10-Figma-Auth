@@ -46,6 +46,11 @@ abstract final class AppTheme {
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
+      headlineSmall: TextStyle(
+        color: AppColors.textboxErrorColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
     ),
   );
 }

@@ -24,7 +24,7 @@ class AppString {
   static const String facebookSignin = "Sign in with Facebook";
   static const String dontHaveAccount = "Don't have an account?";
 
-  static const String signupTitle = "Sign up for free";
+  static const String signupTitle = "Sign up";
   static const String signupMessage = "Please create a new account";
   static const String name = "Name";
   static const String signupButton = "Sign up";
@@ -40,4 +40,6 @@ class AppString {
       "A four-digit code should have come to your email address that you indicated.";
   static const String confirmButton = "Confirm";
   static const String cancelButton = "Cancel";
+
+  static const String requiredField = "This field is required";
 }

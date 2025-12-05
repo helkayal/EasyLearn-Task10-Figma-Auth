@@ -27,6 +27,41 @@ class CustomTextbox extends StatefulWidget {
 
 class _CustomTextboxState extends State<CustomTextbox> {
   bool _obscure = true;
+  final FocusNode _focusNode = FocusNode();
+  final GlobalKey<FormFieldState> _fieldKey = GlobalKey<FormFieldState>();
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        _validate();
+      }
+    });
+  }
+
+  void _validate() {
+    final value = widget.controller?.text;
+    final error = widget.validator?.call(value);
+    setState(() {
+      _errorMessage = error;
+    });
+    _fieldKey.currentState?.validate();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  OutlineInputBorder border(Color color, {double width = 2}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: color, width: width),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,23 +77,40 @@ class _CustomTextboxState extends State<CustomTextbox> {
           width: widget.width ?? double.infinity,
           height: widget.height ?? 50,
           child: TextFormField(
+            key: _fieldKey,
+            focusNode: _focusNode,
             obscureText: widget.isPassword ? _obscure : false,
-            validator: widget.validator,
             controller: widget.controller,
+            validator: (value) {
+              final error = widget.validator?.call(value);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() => _errorMessage = error);
+                }
+              });
+              return error;
+            },
+
             decoration: InputDecoration(
-              hintText: widget.hintText ?? '',
-              hintStyle: Theme.of(context).textTheme.bodyMedium,
               filled: true,
-              // fillColor: AppColors.textboxBgColor,
               fillColor: WidgetStateColor.resolveWith((states) {
                 if (states.contains(WidgetState.error)) {
-                  return AppColors.textboxErrorColor.withValues(alpha: 0.2);
+                  return AppColors.textboxErrorColor.withValues(alpha: .2);
                 }
                 if (states.contains(WidgetState.focused)) {
-                  return AppColors.textboxFocusColor.withValues(alpha: 0.2);
+                  return AppColors.textboxFocusColor.withValues(alpha: .2);
                 }
                 return AppColors.textboxBgColor;
               }),
+
+              hintText: widget.hintText ?? '',
+              hintStyle: Theme.of(context).textTheme.bodyMedium,
+              errorStyle: const TextStyle(height: 0, fontSize: 0),
+
+              enabledBorder: border(AppColors.textboxBorderColor),
+              focusedBorder: border(AppColors.textboxFocusColor),
+              errorBorder: border(AppColors.textboxErrorColor),
+              focusedErrorBorder: border(AppColors.textboxErrorColor),
 
               suffixIcon: widget.isPassword
                   ? IconButton(
@@ -69,41 +121,23 @@ class _CustomTextboxState extends State<CustomTextbox> {
                       onPressed: () => setState(() => _obscure = !_obscure),
                     )
                   : null,
+
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 14,
                 horizontal: 12,
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: AppColors.textboxBorderColor,
-                  width: 2,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: AppColors.textboxFocusColor,
-                  width: 2,
-                ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: AppColors.textboxErrorColor,
-                  width: 1,
-                ),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: AppColors.textboxErrorColor,
-                  width: 2,
-                ),
-              ),
             ),
           ),
         ),
+
+        if (_errorMessage != null && _errorMessage!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 4),
+            child: Text(
+              _errorMessage!,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
       ],
     );
   }
