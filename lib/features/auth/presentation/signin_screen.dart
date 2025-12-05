@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:task10_figma_auth/core/utils/app_string.dart';
 import 'package:task10_figma_auth/features/auth/presentation/forgot_password_screen.dart';
+import 'package:task10_figma_auth/features/auth/utils/validation.dart';
 import 'package:task10_figma_auth/features/auth/widgets/custom_textbox.dart';
 import 'package:task10_figma_auth/features/auth/widgets/social_signin.dart';
 import 'package:task10_figma_auth/features/home/home_screen.dart';
 import 'package:task10_figma_auth/widgets/custom_button.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class SigninScreen extends StatefulWidget {
+  const SigninScreen({super.key});
+
+  @override
+  State<SigninScreen> createState() => _SigninScreenState();
+}
+
+class _SigninScreenState extends State<SigninScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController emailCtrl = TextEditingController();
+  final TextEditingController passCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +27,7 @@ class LoginScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -33,12 +45,16 @@ class LoginScreen extends StatelessWidget {
               CustomTextbox(
                 labelText: AppString.email,
                 hintText: AppString.textHint,
+                controller: emailCtrl,
+                validator: requiredValidator,
               ),
               SizedBox(height: 20),
               CustomTextbox(
                 labelText: AppString.password,
                 hintText: AppString.passwordHint,
                 isPassword: true,
+                controller: passCtrl,
+                validator: requiredValidator,
               ),
               Align(
                 alignment: Alignment.centerRight,
@@ -61,10 +77,14 @@ class LoginScreen extends StatelessWidget {
               CustomButton(
                 label: AppString.signinButton,
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  );
+                  if (_formKey.currentState!.validate()) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                    );
+                  }
                 },
               ),
               Spacer(),
