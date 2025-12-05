@@ -25,153 +25,68 @@ class CustomTextbox extends StatefulWidget {
   State<CustomTextbox> createState() => _CustomTextboxState();
 }
 
-// class _CustomTextboxState extends State<CustomTextbox> {
-//   bool _obscure = true;
-//   final FocusNode _focusNode = FocusNode();
-//   final GlobalKey<FormFieldState> _fieldKey = GlobalKey<FormFieldState>();
-//   String? _errorMessage;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _focusNode.addListener(() {
-//       if (!_focusNode.hasFocus) {
-//         _validate();
-//       }
-//     });
-//   }
-
-//   void _validate() {
-//     final value = widget.controller?.text;
-//     final error = widget.validator?.call(value);
-//     setState(() {
-//       _errorMessage = error;
-//     });
-//     _fieldKey.currentState?.validate();
-//   }
-
-//   @override
-//   void dispose() {
-//     _focusNode.dispose();
-//     super.dispose();
-//   }
-
-//   OutlineInputBorder border(Color color, {double width = 2}) {
-//     return OutlineInputBorder(
-//       borderRadius: BorderRadius.circular(8),
-//       borderSide: BorderSide(color: color, width: width),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           widget.labelText ?? '',
-//           style: Theme.of(context).textTheme.bodyLarge,
-//         ),
-//         const SizedBox(height: 10),
-//         SizedBox(
-//           width: widget.width ?? double.infinity,
-//           height: widget.height ?? 50,
-//           child: TextFormField(
-//             key: _fieldKey,
-//             focusNode: _focusNode,
-//             obscureText: widget.isPassword ? _obscure : false,
-//             controller: widget.controller,
-//             validator: (value) {
-//               final error = widget.validator?.call(value);
-//               WidgetsBinding.instance.addPostFrameCallback((_) {
-//                 if (mounted) {
-//                   setState(() => _errorMessage = error);
-//                 }
-//               });
-//               return error;
-//             },
-
-//             decoration: InputDecoration(
-//               filled: true,
-//               fillColor: WidgetStateColor.resolveWith((states) {
-//                 if (states.contains(WidgetState.error)) {
-//                   return AppColors.textboxErrorColor.withValues(alpha: .2);
-//                 }
-//                 if (states.contains(WidgetState.focused)) {
-//                   return AppColors.textboxFocusColor.withValues(alpha: .2);
-//                 }
-//                 return AppColors.textboxBgColor;
-//               }),
-
-//               hintText: widget.hintText ?? '',
-//               hintStyle: Theme.of(context).textTheme.bodyMedium,
-//               errorStyle: const TextStyle(height: 0, fontSize: 0),
-
-//               enabledBorder: border(AppColors.textboxBorderColor),
-//               focusedBorder: border(AppColors.textboxFocusColor),
-//               errorBorder: border(AppColors.textboxErrorColor),
-//               focusedErrorBorder: border(AppColors.textboxErrorColor),
-
-//               suffixIcon: widget.isPassword
-//                   ? IconButton(
-//                       icon: Icon(
-//                         _obscure ? Icons.visibility_off : Icons.visibility,
-//                         color: AppColors.blueColor,
-//                       ),
-//                       onPressed: () => setState(() => _obscure = !_obscure),
-//                     )
-//                   : null,
-
-//               contentPadding: const EdgeInsets.symmetric(
-//                 vertical: 14,
-//                 horizontal: 12,
-//               ),
-//             ),
-//           ),
-//         ),
-
-//         if (_errorMessage != null && _errorMessage!.isNotEmpty)
-//           Padding(
-//             padding: const EdgeInsets.only(top: 6, left: 4),
-//             child: Text(
-//               _errorMessage!,
-//               style: Theme.of(context).textTheme.headlineSmall,
-//             ),
-//           ),
-//       ],
-//     );
-//   }
-// }
 class _CustomTextboxState extends State<CustomTextbox> {
-  bool _obscure = true;
-  final FocusNode _focusNode = FocusNode();
-  final GlobalKey<FormFieldState> _fieldKey = GlobalKey<FormFieldState>();
-  String? _errorMessage;
+  bool isObscure = true;
+  final FocusNode focusNode = FocusNode();
+  final GlobalKey<FormFieldState> fieldKey = GlobalKey<FormFieldState>();
+  String? errorMessage;
+
+  double passwordStrength = 0;
 
   @override
   void initState() {
     super.initState();
 
-    _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
-        _validate();
+    focusNode.addListener(() {
+      if (!focusNode.hasFocus) {
+        validateField();
       }
+    });
+
+    widget.controller?.addListener(() {
+      if (widget.isPassword) checkPasswordStrength(widget.controller!.text);
     });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
-  void _validate() {
+  void validateField() {
     final value = widget.controller?.text;
     final error = widget.validator?.call(value);
     setState(() {
-      _errorMessage = error;
+      errorMessage = error;
     });
-    _fieldKey.currentState?.validate();
+    fieldKey.currentState?.validate();
+  }
+
+  void checkPasswordStrength(String value) {
+    double strength = 0;
+
+    if (value.isEmpty) {
+      strength = 0;
+    } else if (value.length < 6) {
+      strength = 0.25;
+    } else if (value.length < 8) {
+      strength = 0.5;
+    } else {
+      final hasLetters = RegExp(r'[A-Za-z]').hasMatch(value);
+      final hasNumbers = RegExp(r'\d').hasMatch(value);
+      final hasSpecial = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value);
+
+      if ((hasLetters && hasNumbers && hasSpecial)) {
+        strength = 1.0;
+      } else {
+        strength = 0.75;
+      }
+    }
+
+    setState(() {
+      passwordStrength = strength;
+    });
   }
 
   OutlineInputBorder border(Color color, {double width = 2}) {
@@ -181,10 +96,16 @@ class _CustomTextboxState extends State<CustomTextbox> {
     );
   }
 
+  Color strengthColor() {
+    if (passwordStrength <= 0.4) return AppColors.textboxErrorColor;
+    if (passwordStrength <= 0.75) return AppColors.yellowColor;
+    return AppColors.textboxOkColor;
+  }
+
   @override
   Widget build(BuildContext context) {
     bool hasValue = widget.controller?.text.isNotEmpty ?? false;
-    bool isValid = hasValue && _errorMessage == null;
+    bool isValid = hasValue && errorMessage == null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,77 +118,102 @@ class _CustomTextboxState extends State<CustomTextbox> {
         SizedBox(
           width: widget.width ?? double.infinity,
           height: widget.height ?? 50,
-          child: TextFormField(
-            key: _fieldKey,
-            focusNode: _focusNode,
-            obscureText: widget.isPassword ? _obscure : false,
-            controller: widget.controller,
-
-            validator: (value) {
-              final error = widget.validator?.call(value);
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) setState(() => _errorMessage = error);
-              });
-              return error;
-            },
-
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: WidgetStateColor.resolveWith((states) {
-                if (states.contains(WidgetState.error)) {
-                  return AppColors.textboxErrorColor.withValues(alpha: .2);
-                }
-                if (states.contains(WidgetState.focused)) {
-                  return AppColors.textboxFocusColor.withValues(alpha: .2);
-                }
-                return AppColors.textboxBgColor;
-              }),
-              hintText: widget.hintText ?? '',
-              hintStyle: Theme.of(context).textTheme.bodyMedium,
-              errorStyle: const TextStyle(height: 0, fontSize: 0),
-
-              enabledBorder: border(AppColors.textboxBorderColor),
-              focusedBorder: border(AppColors.textboxFocusColor),
-              errorBorder: border(AppColors.textboxErrorColor),
-              focusedErrorBorder: border(AppColors.textboxErrorColor),
-
-              suffixIcon: widget.isPassword
-                  ? IconButton(
-                      icon: Icon(
-                        _obscure ? Icons.visibility_off : Icons.visibility,
-                        color: AppColors.blueColor,
-                      ),
-                      onPressed: () => setState(() => _obscure = !_obscure),
-                    )
-                  : (hasValue
-                        ? (isValid
-                              ? const Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.textboxOkColor,
-                                )
-                              : const Icon(
-                                  Icons.cancel,
-                                  color: AppColors.textboxErrorColor,
-                                ))
-                        : null),
-
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 14,
-                horizontal: 12,
-              ),
-            ),
-          ),
+          child: buildTextFormField(context, hasValue, isValid),
         ),
 
-        if (_errorMessage != null && _errorMessage!.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 6, left: 4),
-            child: Text(
-              _errorMessage!,
-              style: const TextStyle(color: Colors.red, fontSize: 13),
-            ),
-          ),
+        if (widget.isPassword && hasValue) buildPasswordStrengthBar(),
+
+        if (errorMessage != null && errorMessage!.isNotEmpty)
+          buildErrorMessage(context),
       ],
     );
+  }
+
+  TextFormField buildTextFormField(
+    BuildContext context,
+    bool hasValue,
+    bool isValid,
+  ) {
+    return TextFormField(
+      key: fieldKey,
+      focusNode: focusNode,
+      obscureText: widget.isPassword ? isObscure : false,
+      controller: widget.controller,
+      validator: (value) {
+        final error = widget.validator?.call(value);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => errorMessage = error);
+        });
+        return error;
+      },
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: WidgetStateColor.resolveWith((states) {
+          if (states.contains(WidgetState.error)) {
+            return AppColors.textboxErrorColor.withValues(alpha: .2);
+          }
+          if (states.contains(WidgetState.focused)) {
+            return AppColors.textboxFocusColor.withValues(alpha: .2);
+          }
+          return AppColors.textboxBgColor;
+        }),
+        hintText: widget.hintText ?? '',
+        hintStyle: Theme.of(context).textTheme.bodyMedium,
+        errorStyle: const TextStyle(height: 0, fontSize: 0),
+        enabledBorder: border(AppColors.textboxBorderColor),
+        focusedBorder: border(AppColors.textboxFocusColor),
+        errorBorder: border(AppColors.textboxErrorColor),
+        focusedErrorBorder: border(AppColors.textboxErrorColor),
+        suffixIcon: buildSuffixIcon(hasValue, isValid),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 12,
+        ),
+      ),
+    );
+  }
+
+  Padding buildErrorMessage(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, left: 4),
+      child: Text(
+        errorMessage!,
+        style: Theme.of(context).textTheme.headlineSmall,
+      ),
+    );
+  }
+
+  Padding buildPasswordStrengthBar() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: LinearProgressIndicator(
+        value: passwordStrength,
+        backgroundColor: Colors.grey[300],
+        color: strengthColor(),
+        minHeight: 5,
+      ),
+    );
+  }
+
+  Widget? buildSuffixIcon(bool hasValue, bool isValid) {
+    return widget.isPassword
+        ? IconButton(
+            icon: Icon(
+              isObscure ? Icons.visibility_off : Icons.visibility,
+              color: AppColors.blueColor,
+            ),
+            onPressed: () => setState(() => isObscure = !isObscure),
+          )
+        : (hasValue
+              ? (isValid
+                    ? const Icon(
+                        Icons.check_circle,
+                        color: AppColors.textboxOkColor,
+                      )
+                    : const Icon(
+                        Icons.cancel,
+                        color: AppColors.textboxErrorColor,
+                      ))
+              : null);
   }
 }
