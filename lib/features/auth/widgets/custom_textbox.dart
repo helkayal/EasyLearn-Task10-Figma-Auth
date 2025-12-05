@@ -9,6 +9,7 @@ class CustomTextbox extends StatefulWidget {
   final double? width;
   final double? height;
   final bool isPassword;
+  final bool showPasswordStrength;
 
   const CustomTextbox({
     super.key,
@@ -19,6 +20,7 @@ class CustomTextbox extends StatefulWidget {
     this.labelText,
     this.isPassword = false,
     this.validator,
+    this.showPasswordStrength = false,
   });
 
   @override
@@ -74,7 +76,8 @@ class _CustomTextboxState extends State<CustomTextbox> {
           child: buildTextFormField(context, hasValue, isValid),
         ),
 
-        if (widget.isPassword && hasValue) buildPasswordStrengthBar(),
+        if (widget.showPasswordStrength && widget.isPassword && hasValue)
+          buildPasswordStrengthBar(),
 
         if (errorMessage != null && errorMessage!.isNotEmpty)
           buildErrorMessage(context),

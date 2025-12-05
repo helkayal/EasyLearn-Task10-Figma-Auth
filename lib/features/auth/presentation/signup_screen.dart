@@ -69,6 +69,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   isPassword: true,
                   controller: passCtrl,
                   validator: passwordValidator,
+                  showPasswordStrength: true,
                 ),
 
                 const SizedBox(height: 30),
