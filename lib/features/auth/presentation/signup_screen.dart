@@ -105,6 +105,15 @@ class _SignupScreenState extends State<SignupScreen> {
                     final valid = _formKey.currentState!.validate();
 
                     if (!agree) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("You have to ${AppString.agreeTerms}"),
+                          backgroundColor: AppColors.textboxErrorColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      );
                       setState(() {});
                     }
 
