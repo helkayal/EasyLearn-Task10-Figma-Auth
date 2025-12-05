@@ -14,7 +14,7 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   final TextEditingController nameCtrl = TextEditingController();
   final TextEditingController emailCtrl = TextEditingController();
@@ -29,7 +29,7 @@ class _SignupScreenState extends State<SignupScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +102,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   onPressed: () {
                     FocusScope.of(context).unfocus();
 
-                    final valid = _formKey.currentState!.validate();
+                    final valid = formKey.currentState!.validate();
 
                     if (!agree) {
                       ScaffoldMessenger.of(context).showSnackBar(
